@@ -1,0 +1,206 @@
+<!doctype html>
+<html lang="th">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#11110f">
+  <meta name="description" content="ค้นหาเพลงจาก YouTube และบันทึกเพลงที่ชอบ">
+  <meta name="apple-mobile-web-app-title" content="ฟังดี">
+  <title>ฟังดี — เพลงที่ใช่ในทุกวัน</title>
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="icon" href="icon.svg" type="image/svg+xml">
+  <link rel="apple-touch-icon" href="icon-180.png">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div class="app-shell">
+    <aside class="sidebar">
+      <a class="brand" href="./">
+        <span class="brand-mark"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 12h2l2-5 3 10 3-13 3 11 2-3h3"/></svg></span>
+        <span>ฟังดี<span class="brand-dot">.</span></span>
+      </a>
+      <div class="side-label">เมนู</div>
+      <nav class="side-nav" aria-label="เมนูหลัก">
+        <button class="nav-item active" data-view="home"><span class="nav-icon">⌂</span>หน้าแรก</button>
+        <button class="nav-item" data-view="search"><span class="nav-icon">⌕</span>ค้นหา</button>
+        <button class="nav-item" data-view="liked"><span class="nav-icon heart-nav">♡</span>เพลงที่ชอบ</button>
+      </nav>
+      <div class="sidebar-note">
+        <div class="note-icon">♪</div>
+        <strong>เชื่อมต่อ YouTube</strong>
+        <p>เพิ่ม YouTube Data API key เพื่อค้นหาเพลงและสุ่มเพลงใกล้เคียง</p>
+        <button class="text-button" id="open-settings">ตั้งค่า API key<span>→</span></button>
+      </div>
+      <button class="settings-link" data-view="liked"><span class="gear">♥</span>ลิสต์เพลงที่ชอบ</button>
+    </aside>
+
+    <main class="main-content">
+      <header class="topbar">
+        <div class="mobile-brand">
+          <span class="brand-mark small"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 12h2l2-5 3 10 3-13 3 11 2-3h3"/></svg></span>
+          ฟังดี<span class="brand-dot">.</span>
+        </div>
+        <form class="search-bar" id="search-form" role="search">
+          <span class="search-symbol" aria-hidden="true">⌕</span>
+          <input id="search-input" type="search" placeholder="ค้นหาเพลง ศิลปิน หรืออัลบั้ม" autocomplete="off" aria-label="ค้นหาเพลง">
+          <kbd>Enter</kbd>
+        </form>
+        <button class="api-status" id="api-status" type="button"><span class="status-dot"></span><span>ตั้งค่า API</span></button>
+      </header>
+
+      <section class="view active" id="view-home">
+        <div class="welcome-row">
+          <div>
+            <div class="eyebrow"><span class="eyebrow-line"></span>ยินดีต้อนรับ</div>
+            <h1>วันนี้ฟังอะไรดี<span class="highlight">?</span></h1>
+            <p class="intro-copy">ค้นหาเพลงจาก YouTube เล่นวน และเก็บเพลงที่ชอบไว้ในที่เดียว</p>
+          </div>
+          <div class="date-chip"><span>●</span>เพลงที่ใช่ในทุกวัน</div>
+        </div>
+
+        <div class="hero-grid">
+          <div class="player-card">
+            <div class="player-frame">
+              <div class="player-badge"><span class="live-dot"></span>YOUTUBE</div>
+              <div class="youtube-player" id="youtube-player"></div>
+              <div class="player-placeholder" id="player-placeholder">
+                <div class="sound-orbit">♪</div>
+                <div class="placeholder-title">เลือกเพลงเพื่อเริ่มฟัง</div>
+                <div class="placeholder-sub">แตะเพลงแนะนำด้านล่าง หรือค้นหาเพลงที่ชอบ</div>
+              </div>
+            </div>
+            <div class="now-playing">
+              <div class="track-info">
+                <div class="mini-label">กำลังเล่น</div>
+                <h2 id="now-title">ยังไม่ได้เลือกเพลง</h2>
+                <p id="now-artist">—</p>
+              </div>
+              <button class="round-heart" id="now-like" type="button" disabled aria-label="เพิ่มเพลงในเพลงที่ชอบ">♡</button>
+            </div>
+            <div class="player-controls">
+              <button class="control-text repeat-control" id="repeat-button" type="button" aria-pressed="false"><span>↻</span><span>เล่นวน</span></button>
+              <button class="control-text" id="similar-button" type="button" disabled><span>⤨</span><span>สุ่มเพลงใกล้เคียง</span></button>
+              <a class="youtube-link" id="youtube-link" href="https://music.youtube.com/" target="_blank" rel="noopener">เปิดใน YouTube Music ↗</a>
+            </div>
+          </div>
+
+          <div class="side-rail">
+            <div class="rail-card mood-card">
+              <div class="mood-art">
+                <span class="mood-sun"></span>
+                <span class="mood-note note-one">♪</span>
+                <span class="mood-note note-two">♫</span>
+                <span class="mood-line"></span>
+              </div>
+              <div class="mood-copy">
+                <div class="mini-label">ค้นพบเพลงใหม่</div>
+                <h3>สุ่มเพลงที่ใกล้เคียงกับที่ฟังอยู่</h3>
+                <p>ให้ฟังดีหาเพลงแนวเดียวกันมาเล่นต่อ</p>
+                <button class="primary-button" id="hero-similar" type="button"><span>⤨</span>สุ่มเพลงใกล้เคียง</button>
+              </div>
+            </div>
+            <div class="rail-card lock-note">
+              <span class="lock-icon">🔒</span>
+              <div>
+                <strong>การเล่นหลังล็อกหน้าจอ</strong>
+                <p>iOS อาจหยุดเสียงจากเว็บเมื่อล็อกจอ จึงไม่รับประกันการเล่นเบื้องหลัง</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <section class="section-block">
+          <div class="section-heading">
+            <div>
+              <div class="mini-label">แนะนำสำหรับคุณ</div>
+              <h2>เพลงยอดนิยม</h2>
+            </div>
+            <button class="subtle-link" data-view="search" type="button">ค้นหาเพิ่มเติม<span>→</span></button>
+          </div>
+          <div class="track-grid" id="suggestion-grid"></div>
+        </section>
+      </section>
+
+      <section class="view" id="view-search">
+        <div class="page-heading">
+          <div class="eyebrow"><span class="eyebrow-line"></span>ค้นหา</div>
+          <h1>หาเพลงที่อยากฟัง</h1>
+          <p>พิมพ์ชื่อเพลงหรือศิลปิน แล้วแตะเพื่อเล่นทันที</p>
+        </div>
+        <form class="large-search" id="search-form-large" role="search">
+          <span aria-hidden="true">⌕</span>
+          <input id="large-search-input" type="search" placeholder="เช่น ชื่อเพลง หรือ ศิลปิน" autocomplete="off" aria-label="ค้นหาเพลง">
+          <button class="primary-button" type="submit">ค้นหา</button>
+        </form>
+        <p class="result-status" id="search-status" aria-live="polite">พิมพ์คำค้นหาเพื่อเริ่มต้น</p>
+        <div class="track-list" id="search-results"></div>
+      </section>
+
+      <section class="view" id="view-liked">
+        <div class="liked-heading">
+          <div class="liked-art"><span>♥</span><i>♪</i></div>
+          <div>
+            <div class="eyebrow"><span class="eyebrow-line"></span>เพลย์ลิสต์</div>
+            <h1>เพลงที่ชอบ</h1>
+            <p>เพลงที่คุณกดใจไว้ บันทึกในเครื่องนี้</p>
+            <div class="liked-count" id="liked-count">0 เพลงในลิสต์</div>
+          </div>
+        </div>
+        <div class="list-toolbar">
+          <span>รายการเพลง</span>
+          <button class="subtle-link" id="play-liked" type="button" disabled>เล่นทั้งหมด<span>▶</span></button>
+        </div>
+        <div class="track-list" id="liked-results"></div>
+        <div class="empty-state" id="liked-empty">
+          <div class="empty-heart">♡</div>
+          <h2>ยังไม่มีเพลงที่ชอบ</h2>
+          <p>แตะรูปหัวใจที่เพลงเพื่อเก็บไว้ที่นี่</p>
+          <button class="primary-button" data-view="search" type="button">ค้นหาเพลง</button>
+        </div>
+      </section>
+
+      <footer class="footer">
+        <span>ฟังดี · เพลงจาก YouTube</span>
+        <button id="footer-settings" type="button">ตั้งค่า API key</button>
+      </footer>
+    </main>
+
+    <nav class="mobile-nav" aria-label="เมนูหลัก">
+      <button class="mobile-nav-item active" data-view="home" type="button"><span>⌂</span>หน้าแรก</button>
+      <button class="mobile-nav-item" data-view="search" type="button"><span>⌕</span>ค้นหา</button>
+      <button class="mobile-nav-item" data-view="liked" type="button"><span>♡</span>ที่ชอบ</button>
+    </nav>
+  </div>
+
+  <dialog class="settings-dialog" id="settings-dialog">
+    <div class="dialog-top">
+      <div>
+        <div class="mini-label">ตั้งค่า</div>
+        <h2>YouTube API key</h2>
+      </div>
+      <form method="dialog"><button class="close-button" aria-label="ปิด">×</button></form>
+    </div>
+    <div class="dialog-body">
+      <p>ใส่ YouTube Data API v3 key เพื่อค้นหาเพลง key จะถูกเก็บไว้ในเบราว์เซอร์ของเครื่องนี้เท่านั้น</p>
+      <label for="api-key-input">API key</label>
+      <div class="key-input-row">
+        <input id="api-key-input" type="password" autocomplete="off" spellcheck="false" placeholder="AIza...">
+        <button id="toggle-key" type="button">แสดง</button>
+      </div>
+      <div class="key-help">แนะนำให้จำกัด key ให้ใช้ได้เฉพาะโดเมนของเว็บนี้ใน Google Cloud Console</div>
+      <a class="help-link" href="https://console.cloud.google.com/apis/library/youtube.googleapis.com" target="_blank" rel="noopener">สร้าง API key ใน Google Cloud ↗</a>
+      <div class="policy-box">
+        <strong>ข้อกำหนดการใช้งาน</strong>
+        <p>เพลงเล่นผ่าน YouTube player ตามข้อกำหนดของ YouTube บางวิดีโออาจไม่อนุญาตให้ฝังหรือมีโฆษณา</p>
+      </div>
+      <div class="dialog-actions">
+        <button class="secondary-button" id="clear-key" type="button">ลบ key</button>
+        <button class="primary-button" id="save-key" type="button">บันทึก</button>
+      </div>
+    </div>
+  </dialog>
+
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+  <script src="app.js"></script>
+</body>
+</html>
